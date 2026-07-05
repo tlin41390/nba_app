@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NBA Shot Chart</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="app">
+    <header>
+        <h1>🏀 NBA Shot Chart</h1>
+        <p class="subtitle">Search a player, pick a season, see every shot.</p>
+    </header>
+
+    <div class="controls">
+        <div class="search-box">
+            <input type="text" id="playerInput" placeholder="Search player name (e.g. Stephen Curry)" autocomplete="off">
+            <div id="suggestions" class="suggestions hidden"></div>
+        </div>
+
+        <select id="seasonSelect"></select>
+
+        <select id="gameSelect" disabled>
+            <option value="">All games</option>
+        </select>
+
+        <button id="loadBtn" disabled>Load Shot Chart</button>
+    </div>
+
+    <div id="statusMsg" class="status hidden"></div>
+
+    <div class="chart-area">
+        <div class="chart-header">
+            <h2 id="chartTitle">&nbsp;</h2>
+            <div class="legend">
+                <span class="legend-item"><span class="dot made"></span> Make</span>
+                <span class="legend-item"><span class="dot missed"></span> Miss</span>
+            </div>
+        </div>
+
+        <div class="canvas-wrap">
+            <canvas id="court" width="500" height="470"></canvas>
+            <div id="tooltip" class="tooltip hidden"></div>
+        </div>
+
+        <div id="statsBar" class="stats-bar hidden"></div>
+    </div>
+</div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
