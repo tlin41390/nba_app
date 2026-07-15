@@ -15,6 +15,29 @@ body {
     padding: 24px 16px 60px;
 }
 
+.app.wide {
+    max-width: 900px;
+}
+
+.page-nav {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 4px;
+}
+
+.page-nav a {
+    color: #9aa0a6;
+    text-decoration: none;
+    font-size: 14px;
+    padding-bottom: 4px;
+    border-bottom: 2px solid transparent;
+}
+
+.page-nav a.active {
+    color: #fff;
+    border-bottom-color: #c9082a;
+}
+
 header h1 {
     margin: 0 0 4px;
     font-size: 26px;
@@ -125,6 +148,71 @@ header h1 {
 
 #loadBtn:not(:disabled):hover {
     opacity: 0.88;
+}
+
+.player-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 12px;
+    padding: 12px;
+    background: #1a1d24;
+    border: 1px solid #333;
+    border-radius: 8px;
+}
+
+.player-card.hidden {
+    display: none;
+}
+
+#playerHeadshot {
+    flex-shrink: 0;
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    object-position: center 15%;
+    border-radius: 50%;
+    background: #262a33;
+    border: 1px solid #333;
+}
+
+.player-info {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+}
+
+.player-name {
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: 0.2px;
+    line-height: 1.2;
+}
+
+.player-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0;
+    font-size: 13px;
+    color: #9aa0a6;
+}
+
+.player-meta span {
+    padding: 0 10px;
+    border-left: 1px solid #333;
+}
+
+.player-meta span:first-child {
+    padding-left: 0;
+    border-left: none;
+}
+
+.player-meta b {
+    color: #fff;
+    font-weight: 600;
 }
 
 .status {
@@ -276,4 +364,107 @@ header h1 {
         width: 100%;
         height: auto;
     }
+}
+
+/* ---------- Player stats page ---------- */
+
+.ps-toolbar {
+    align-items: center;
+    justify-content: space-between;
+}
+
+.ps-count {
+    color: #9aa0a6;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.table-wrap {
+    overflow-x: auto;
+    border: 1px solid #333;
+    border-radius: 8px;
+}
+
+.player-table, .stats-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.player-table th, .player-table td,
+.stats-table th, .stats-table td {
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid #262a33;
+}
+
+.player-table thead th, .stats-table thead th {
+    background: #1a1d24;
+    color: #9aa0a6;
+    font-weight: 600;
+    font-size: 12.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    position: sticky;
+    top: 0;
+}
+
+.player-table tbody tr {
+    cursor: pointer;
+}
+
+.player-table tbody tr:hover {
+    background: #1a1d24;
+}
+
+.player-table tbody tr:last-child td,
+.stats-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 14px;
+}
+
+.page-btn {
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid #333;
+    background: #1a1d24;
+    color: #fff;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.page-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.page-btn:not(:disabled):hover {
+    background: #262a33;
+}
+
+.page-indicator {
+    color: #9aa0a6;
+    font-size: 14px;
+}
+
+.back-btn {
+    background: none;
+    border: none;
+    color: #9aa0a6;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 0;
+    margin-bottom: 14px;
+}
+
+.back-btn:hover {
+    color: #fff;
 }

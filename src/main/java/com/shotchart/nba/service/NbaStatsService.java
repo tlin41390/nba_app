@@ -1,15 +1,5 @@
 package com.shotchart.nba.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.shotchart.nba.model.PlayerInfo;
-import com.shotchart.nba.model.Shot;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.ResourceAccessException;
-import org.springframework.web.client.RestTemplate;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -17,13 +7,27 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestTemplate;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.shotchart.nba.model.CareerSeasonStats;
+import com.shotchart.nba.model.PlayerBio;
+import com.shotchart.nba.model.PlayerInfo;
+import com.shotchart.nba.model.Shot;
+
 /**
- * Talks to the local nba_service Flask microservice (see /nba_service), which wraps
- * the nba_api Python package (https://github.com/swar/nba_api). stats.nba.com blocks
- * requests from most cloud/datacenter IPs and requires brittle hand-rolled browser
- * headers, so the actual HTTP call to stats.nba.com is delegated to nba_api. This
- * service just consumes the same resultSets/headers/rowSet JSON shape stats.nba.com
- * itself returns, proxied back unchanged by the microservice.
+ * Talks to the local nba_service Flask microservice (see /nba_service), which
+ * wraps the nba_api Python package (https://github.com/swar/nba_api).
+ * stats.nba.com blocks requests from most cloud/datacenter IPs and requires
+ * brittle hand-rolled browser headers, so the actual HTTP call to stats.nba.com
+ * is delegated to nba_api. This service just consumes the same
+ * resultSets/headers/rowSet JSON shape stats.nba.com itself returns, proxied
+ * back unchanged by the microservice.
  */
 @Service
 public class NbaStatsService {
@@ -41,7 +45,8 @@ public class NbaStatsService {
 
     /**
      * Fetches the full all-time player list once and caches it in memory.
-     * IsOnlyCurrentSeason=0 returns every player in league history, active or not.
+     * IsOnlyCurrentSeason=0 returns every player in league history, active or
+     * not.
      */
     public synchronized List<PlayerInfo> getAllPlayers() {
         if (cachedPlayers != null) {
@@ -79,6 +84,16 @@ public class NbaStatsService {
         return players;
     }
 
+    /**
+     * Full all-time player list sorted alphabetically by name, for the
+     * player-stats browse page.
+     */
+    public List<PlayerInfo> getAllPlayersSorted() {
+        return getAllPlayers().stream()
+                .sorted(Comparator.comparing(PlayerInfo::getFullName, String.CASE_INSENSITIVE_ORDER))
+                .collect(Collectors.toList());
+    }
+
     public List<PlayerInfo> searchPlayers(String query) {
         if (query == null || query.trim().length() < 2) {
             return List.of();
@@ -93,8 +108,8 @@ public class NbaStatsService {
     }
 
     /**
-     * Fetches every regular season field goal attempt for a player in a given season.
-     * Season format expected: "2023-24"
+     * Fetches every regular season field goal attempt for a player in a given
+     * season. Season format expected: "2023-24"
      */
     public List<Shot> getShotChart(int playerId, String season) {
         String url = baseUrl + "/shotchartdetail"
@@ -147,31 +162,134 @@ public class NbaStatsService {
         return shots;
     }
 
+    public PlayerBio getPlayerBio(int playerId) {
+        String url = baseUrl + "/commonplayerinfo?PlayerID=" + playerId;
+
+        String body = fetch(url);
+
+        PlayerBio bio = new PlayerBio();
+
+        try {
+            JsonNode root = mapper.readTree(body);
+            JsonNode resultSet = root.path("resultSets").get(0);
+
+            List<String> headers = new ArrayList<>();
+            resultSet.path("headers").forEach(h -> headers.add(h.asText()));
+
+            Map<String, Integer> idx = new HashMap<>();
+            for (int i = 0; i < headers.size(); i++) {
+                idx.put(headers.get(i), i);
+            }
+
+            JsonNode rowSet = resultSet.path("rowSet");
+            if (rowSet.size() == 0) {
+                throw new RuntimeException("No player bio found for playerId: " + playerId);
+            }
+
+            JsonNode row = rowSet.get(0);
+
+            bio.setId(getInt(row, idx, "PERSON_ID"));
+            bio.setFirstName(getText(row, idx, "FIRST_NAME"));
+            bio.setLastName(getText(row, idx, "LAST_NAME"));
+            bio.setBirthDate(getText(row, idx, "BIRTHDATE"));
+            bio.setHeightFeetInches(getInt(row, idx, "HEIGHT"));
+            bio.setWeightPounds(getInt(row, idx, "WEIGHT"));
+            bio.setCountry(getText(row, idx, "COUNTRY"));
+            bio.setPosition(getText(row, idx, "POSITION"));
+            bio.setSeasonExp(getInt(row, idx, "SEASON_EXP"));
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to fetch/parse player bio data from NBA stats API", e);
+        }
+        return bio;
+    }
+
+    /**
+     * Fetches a player's regular season career stats, one row per season. Uses
+     * per-game averages (Flask service requests PerMode36=PerGame).
+     */
+    public List<CareerSeasonStats> getCareerStats(int playerId) {
+        String url = baseUrl + "/playercareerstats?PlayerID=" + playerId;
+        String body = fetch(url);
+
+        List<CareerSeasonStats> seasons = new ArrayList<>();
+        try {
+            JsonNode root = mapper.readTree(body);
+
+            System.out.println("Root: " + root.toPrettyString());
+            JsonNode resultSet = null;
+            for (JsonNode node : root.path("resultSets")) {
+                if ("SeasonTotalsRegularSeason".equals(node.path("name").asText())) {
+                    resultSet = node;
+                    break;
+                }
+            }
+            if (resultSet == null) {
+                throw new RuntimeException("SeasonTotalsRegularSeason resultSet not found for playerId: " + playerId);
+            }
+
+            List<String> headers = new ArrayList<>();
+            resultSet.path("headers").forEach(h -> headers.add(h.asText()));
+            System.out.println("Headers: " + headers);
+            Map<String, Integer> idx = new HashMap<>();
+            for (int i = 0; i < headers.size(); i++) {
+                idx.put(headers.get(i), i);
+            }
+
+            for (JsonNode row : resultSet.path("rowSet")) {
+                CareerSeasonStats s = new CareerSeasonStats();
+                s.setSeasonId(getText(row, idx, "SEASON_ID"));
+                s.setTeamAbbreviation(getText(row, idx, "TEAM_ABBREVIATION"));
+                s.setGp(getInt(row, idx, "GP"));
+                s.setMin(getDouble(row, idx, "MIN"));
+                s.setPts(getDouble(row, idx, "PTS"));
+                s.setReb(getDouble(row, idx, "REB"));
+                s.setAst(getDouble(row, idx, "AST"));
+                s.setStl(getDouble(row, idx, "STL"));
+                s.setBlk(getDouble(row, idx, "BLK"));
+                s.setFgPct(getDouble(row, idx, "FG_PCT"));
+                s.setFg3Pct(getDouble(row, idx, "FG3_PCT"));
+                s.setFtPct(getDouble(row, idx, "FT_PCT"));
+                seasons.add(s);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to fetch/parse career stats from NBA stats API", e);
+        }
+
+        return seasons;
+    }
+
     private String fetch(String url) {
         try {
             return restTemplate.getForObject(url, String.class);
         } catch (ResourceAccessException e) {
             throw new RuntimeException(
                     "Could not reach the nba_service microservice at " + baseUrl
-                            + ". Make sure it's running (see nba_service/README or run `python app.py`).", e);
+                    + ". Make sure it's running (see nba_service/README or run `python app.py`).", e);
         }
     }
 
     private String getText(JsonNode row, Map<String, Integer> idx, String key) {
         Integer i = idx.get(key);
-        if (i == null || row.get(i).isNull()) return "";
+        if (i == null || row.get(i).isNull()) {
+            return "";
+        }
         return row.get(i).asText();
     }
 
     private int getInt(JsonNode row, Map<String, Integer> idx, String key) {
         Integer i = idx.get(key);
-        if (i == null || row.get(i).isNull()) return 0;
+        if (i == null || row.get(i).isNull()) {
+            return 0;
+        }
         return row.get(i).asInt();
     }
 
     private double getDouble(JsonNode row, Map<String, Integer> idx, String key) {
         Integer i = idx.get(key);
-        if (i == null || row.get(i).isNull()) return 0;
+        if (i == null || row.get(i).isNull()) {
+            return 0;
+        }
         return row.get(i).asDouble();
     }
 }

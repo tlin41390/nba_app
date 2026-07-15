@@ -56,6 +56,58 @@ function updateChartTitle() {
     document.getElementById('chartTitle').textContent = title;
 }
 
+// ---------- Player card (headshot + bio) ----------
+const playerCard = document.getElementById('playerCard');
+const playerHeadshot = document.getElementById('playerHeadshot');
+const playerName = document.getElementById('playerName');
+const playerMeta = document.getElementById('playerMeta');
+
+async function loadPlayerBio(playerId) {
+    playerHeadshot.src = `https://cdn.nba.com/headshots/nba/latest/1040x760/${playerId}.png`;
+    playerHeadshot.onerror = () => {
+        playerHeadshot.onerror = null;
+        playerHeadshot.src = 'data:image/svg+xml,' + encodeURIComponent(
+            '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><rect width="20" height="20" fill="#262a33"/></svg>'
+        );
+    };
+    playerName.textContent = '';
+    playerMeta.innerHTML = '';
+    playerCard.classList.remove('hidden');
+
+    try {
+        const res = await fetch(`/api/playerbio?playerId=${playerId}`);
+        if (!res.ok) throw new Error('bio fetch failed: ' + res.status);
+        const bio = await res.json();
+        renderPlayerCard(bio);
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+function renderPlayerCard(bio) {
+    playerName.textContent = `${bio.firstName} ${bio.lastName}`.trim();
+
+    const items = [];
+    if (bio.position) items.push(`<b>${bio.position}</b>`);
+    if (bio.jerseyNumber) items.push(`<b>#${bio.jerseyNumber}</b>`);
+    if (bio.heightFeetInches) items.push(`<b>${bio.heightFeetInches.replace('-', "' ")}\"</b>`);
+    if (bio.weightPounds) items.push(`<b>${bio.weightPounds}</b> lbs`);
+    if (bio.country) items.push(bio.country);
+    if (bio.birthDate) items.push(`Born ${formatBirthDate(bio.birthDate)}`);
+    if (bio.seasonExp) {
+        const exp = parseInt(bio.seasonExp, 10);
+        items.push(exp === 0 ? 'Rookie' : `<b>${exp}</b> yr${exp === 1 ? '' : 's'} exp`);
+    }
+
+    playerMeta.innerHTML = items.map(i => `<span>${i}</span>`).join('');
+}
+
+function formatBirthDate(raw) {
+    const d = new Date(raw);
+    if (isNaN(d)) return raw;
+    return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
 // ---------- Player search / autocomplete ----------
 const playerInput = document.getElementById('playerInput');
 const suggestionsBox = document.getElementById('suggestions');
@@ -70,6 +122,7 @@ let currentSuggestions = [];
 playerInput.addEventListener('input', () => {
     selectedPlayer = null;
     loadBtn.disabled = true;
+    document.getElementById('playerCard').classList.add('hidden');
     const query = playerInput.value.trim();
 
     clearTimeout(debounceTimer);
@@ -144,6 +197,7 @@ function choosePlayer(player) {
     playerInput.value = player.fullName;
     hideSuggestions();
     loadBtn.disabled = false;
+    loadPlayerBio(player.id);
 }
 
 // ---------- Load shot chart ----------

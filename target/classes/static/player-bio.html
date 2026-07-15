@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Player Bio</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="app wide">
+    <header>
+        <h1>🏀 Player Bio</h1>
+        <nav class="page-nav">
+            <a href="index.html">Shot Chart</a>
+            <a href="player-stats.html" class="active">Career Stats</a>
+        </nav>
+    </header>
+
+    <button id="backBtn" class="back-btn">&larr; Back to all players</button>
+
+    <div id="playerCard" class="player-card">
+        <img id="playerHeadshot" alt="">
+        <div class="player-info">
+            <div id="playerName" class="player-name"></div>
+            <div id="playerMeta" class="player-meta"></div>
+        </div>
+    </div>
+
+    <div id="statsMsg" class="status hidden"></div>
+    <div class="table-wrap">
+        <table class="stats-table" id="careerTable">
+            <thead>
+                <tr>
+                    <th>Season</th>
+                    <th>Team</th>
+                    <th>GP</th>
+                    <th>MIN</th>
+                    <th>PTS</th>
+                    <th>REB</th>
+                    <th>AST</th>
+                    <th>STL</th>
+                    <th>BLK</th>
+                    <th>FG%</th>
+                    <th>3P%</th>
+                    <th>FT%</th>
+                </tr>
+            </thead>
+            <tbody id="careerTableBody"></tbody>
+        </table>
+    </div>
+</div>
+<script src="js/player-bio.js"></script>
+</body>
+</html>

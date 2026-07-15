@@ -12,6 +12,10 @@
     <header>
         <h1>🏀 NBA Shot Chart</h1>
         <p class="subtitle">Search a player, pick a season, see every shot.</p>
+        <nav class="page-nav">
+            <a href="index.html" class="active">Shot Chart</a>
+            <a href="player-stats.html">Career Stats</a>
+        </nav>
     </header>
 
     <div class="controls">
@@ -27,6 +31,14 @@
         </select>
 
         <button id="loadBtn" disabled>Load Shot Chart</button>
+    </div>
+
+    <div id="playerCard" class="player-card hidden">
+        <img id="playerHeadshot" alt="">
+        <div class="player-info">
+            <div id="playerName" class="player-name"></div>
+            <div id="playerMeta" class="player-meta"></div>
+        </div>
     </div>
 
     <div id="statusMsg" class="status hidden"></div>

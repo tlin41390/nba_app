@@ -11,7 +11,7 @@ NbaStatsService.java unchanged.
 """
 
 from flask import Flask, jsonify, request
-from nba_api.stats.endpoints import commonallplayers, shotchartdetail
+from nba_api.stats.endpoints import commonallplayers, commonplayerinfo, playercareerstats, shotchartdetail
 from requests.exceptions import RequestException
 
 app = Flask(__name__)
@@ -47,9 +47,27 @@ def common_player_info():
     
 
     try:
-        data = commonallplayers.CommonPlayerInfo(
+        data = commonplayerinfo.CommonPlayerInfo(
             player_id=player_id,
-            league_id=league_id,
+            league_id_nullable=league_id,
+            timeout=REQUEST_TIMEOUT,
+        )
+    except RequestException as e:
+        return jsonify(error=f"nba_api request failed: {e}"), 502
+
+    return jsonify(data.get_dict())
+
+@app.route("/stats/playercareerstats")
+def player_career_stats():
+    player_id = request.args.get("PlayerID", type=int)
+
+    if player_id is None:
+        return jsonify(error="PlayerID is required"), 400
+
+    try:
+        data = playercareerstats.PlayerCareerStats(
+            player_id=player_id,
+            per_mode36="PerGame",
             timeout=REQUEST_TIMEOUT,
         )
     except RequestException as e:

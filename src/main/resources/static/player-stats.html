@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NBA Player Career Stats</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="app wide">
+    <header>
+        <h1>🏀 Player Career Stats</h1>
+        <p class="subtitle">Browse every player in NBA history, or search by name.</p>
+        <nav class="page-nav">
+            <a href="index.html">Shot Chart</a>
+            <a href="player-stats.html" class="active">Career Stats</a>
+        </nav>
+    </header>
+
+    <div class="controls ps-toolbar">
+        <span class="ps-count" id="playerCount"></span>
+        <div class="search-box">
+            <input type="text" id="playerInput" placeholder="Search player name (e.g. Stephen Curry)" autocomplete="off">
+            <div id="suggestions" class="suggestions hidden"></div>
+        </div>
+    </div>
+
+    <div class="table-wrap">
+        <table class="player-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Team</th>
+                </tr>
+            </thead>
+            <tbody id="playerTableBody"></tbody>
+        </table>
+    </div>
+
+    <div class="pagination">
+        <button id="prevPageBtn" class="page-btn">&larr; Prev</button>
+        <span id="pageIndicator" class="page-indicator"></span>
+        <button id="nextPageBtn" class="page-btn">Next &rarr;</button>
+    </div>
+</div>
+<script src="js/player-stats.js"></script>
+</body>
+</html>
