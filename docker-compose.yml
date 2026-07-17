@@ -1,0 +1,21 @@
+services:
+  nba-service:
+    build: ./nba_service
+    ports:
+      - "5001:5001"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5001/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  nba-shot-chart:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      NBA_MICROSERVICE_BASE_URL: http://nba-service:5001/stats
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+    depends_on:
+      nba-service:
+        condition: service_healthy

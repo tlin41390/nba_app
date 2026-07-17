@@ -1,5 +1,6 @@
 package com.shotchart.nba.service;
 
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -19,6 +20,7 @@ import com.shotchart.nba.model.CareerSeasonStats;
 import com.shotchart.nba.model.PlayerBio;
 import com.shotchart.nba.model.PlayerInfo;
 import com.shotchart.nba.model.Shot;
+import com.shotchart.nba.model.ShotZoneSummary;
 
 /**
  * Talks to the local nba_service Flask microservice (see /nba_service), which
@@ -98,13 +100,25 @@ public class NbaStatsService {
         if (query == null || query.trim().length() < 2) {
             return List.of();
         }
-        String q = query.toLowerCase().trim();
+        String q = normalize(query.trim());
         return getAllPlayers().stream()
-                .filter(p -> p.getFullName().toLowerCase().contains(q))
+                .filter(p -> normalize(p.getFullName()).contains(q))
                 .sorted(Comparator.comparing((PlayerInfo p) -> !p.isActive())
                         .thenComparing(PlayerInfo::getFullName))
                 .limit(15)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Lowercases and strips diacritics (e.g. "Jokić" -> "jokic") so users can
+     * search with a plain-ASCII spelling of an accented name.
+     */
+    private static String normalize(String s) {
+        if (s == null) {
+            return "";
+        }
+        String decomposed = Normalizer.normalize(s, Normalizer.Form.NFD);
+        return decomposed.replaceAll("\\p{M}", "").toLowerCase();
     }
 
     /**
@@ -162,6 +176,44 @@ public class NbaStatsService {
         return shots;
     }
 
+    /**
+     * Aggregates a player's shot chart for a season by SHOT_ZONE_BASIC, so
+     * callers (e.g. the chatbot) don't have to work with a 1000+ row
+     * shot-by-shot list just to answer "where does he shoot from most".
+     */
+    public ShotZoneSummary summarizeShotChart(int playerId, String season) {
+        List<Shot> shots = getShotChart(playerId, season);
+
+        Map<String, int[]> zoneCounts = new HashMap<>(); // zone -> [attempts, makes]
+        int totalAttempts = 0;
+        int totalMakes = 0;
+
+        for (Shot shot : shots) {
+            String zone = shot.getShotZoneBasic() == null || shot.getShotZoneBasic().isEmpty()
+                    ? "Unknown"
+                    : shot.getShotZoneBasic();
+            int[] counts = zoneCounts.computeIfAbsent(zone, z -> new int[2]);
+            counts[0]++;
+            totalAttempts++;
+            if (shot.isShotMade()) {
+                counts[1]++;
+                totalMakes++;
+            }
+        }
+
+        List<ShotZoneSummary.ZoneStats> zones = zoneCounts.entrySet().stream()
+                .map(e -> new ShotZoneSummary.ZoneStats(
+                        e.getKey(),
+                        e.getValue()[0],
+                        e.getValue()[1],
+                        e.getValue()[0] == 0 ? 0.0 : (double) e.getValue()[1] / e.getValue()[0]))
+                .sorted(Comparator.comparingInt(ShotZoneSummary.ZoneStats::getAttempts).reversed())
+                .collect(Collectors.toList());
+
+        double overallFgPct = totalAttempts == 0 ? 0.0 : (double) totalMakes / totalAttempts;
+        return new ShotZoneSummary(totalAttempts, totalMakes, overallFgPct, zones);
+    }
+
     public PlayerBio getPlayerBio(int playerId) {
         String url = baseUrl + "/commonplayerinfo?PlayerID=" + playerId;
 
@@ -192,9 +244,15 @@ public class NbaStatsService {
             bio.setFirstName(getText(row, idx, "FIRST_NAME"));
             bio.setLastName(getText(row, idx, "LAST_NAME"));
             bio.setBirthDate(getText(row, idx, "BIRTHDATE"));
-            bio.setHeightFeetInches(getInt(row, idx, "HEIGHT"));
+            bio.setHeightFeetInches(getText(row, idx, "HEIGHT"));
             bio.setWeightPounds(getInt(row, idx, "WEIGHT"));
             bio.setCountry(getText(row, idx, "COUNTRY"));
+            bio.setSchool(getText(row, idx, "SCHOOL"));
+            bio.setDraftYear(getInt(row, idx, "DRAFT_YEAR"));
+            bio.setDraftRound(getInt(row, idx, "DRAFT_ROUND"));
+            bio.setDraftNumber(getInt(row, idx, "DRAFT_NUMBER"));
+            bio.setCurrentTeam(getText(row, idx, "TEAM_NAME"));
+            bio.setJerseyNumber(getInt(row, idx, "JERSEY"));
             bio.setPosition(getText(row, idx, "POSITION"));
             bio.setSeasonExp(getInt(row, idx, "SEASON_EXP"));
 

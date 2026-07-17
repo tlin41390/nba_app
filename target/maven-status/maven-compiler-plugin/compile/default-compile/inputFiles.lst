@@ -1,8 +1,11 @@
 C:\Users\linte\Documents\programs\nba-shot-chart\src\main\java\com\shotchart\nba\model\PlayerInfo.java
+C:\Users\linte\Documents\programs\nba-shot-chart\src\main\java\com\shotchart\nba\model\ShotZoneSummary.java
 C:\Users\linte\Documents\programs\nba-shot-chart\src\main\java\com\shotchart\nba\model\Shot.java
 C:\Users\linte\Documents\programs\nba-shot-chart\src\main\java\com\shotchart\nba\config\RestTemplateConfig.java
+C:\Users\linte\Documents\programs\nba-shot-chart\src\main\java\com\shotchart\nba\controller\ChatController.java
 C:\Users\linte\Documents\programs\nba-shot-chart\src\main\java\com\shotchart\nba\model\CareerSeasonStats.java
 C:\Users\linte\Documents\programs\nba-shot-chart\src\main\java\com\shotchart\nba\service\NbaStatsService.java
 C:\Users\linte\Documents\programs\nba-shot-chart\src\main\java\com\shotchart\nba\model\PlayerBio.java
+C:\Users\linte\Documents\programs\nba-shot-chart\src\main\java\com\shotchart\nba\service\ChatService.java
 C:\Users\linte\Documents\programs\nba-shot-chart\src\main\java\com\shotchart\nba\NbaShotChartApplication.java
 C:\Users\linte\Documents\programs\nba-shot-chart\src\main\java\com\shotchart\nba\controller\ShotChartController.java

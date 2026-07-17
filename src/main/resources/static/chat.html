@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NBA Player Chat</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="app">
+    <header>
+        <h1>🏀 Player Chat</h1>
+        <p class="subtitle">Ask anything about an NBA player &mdash; stats, bio, or shot tendencies.</p>
+        <nav class="page-nav">
+            <a href="index.html">Shot Chart</a>
+            <a href="player-stats.html">Career Stats</a>
+            <a href="chat.html" class="active">Chat</a>
+        </nav>
+    </header>
+
+    <div id="chatLog" class="chat-log"></div>
+
+    <form id="chatForm" class="chat-form">
+        <input type="text" id="chatInput" placeholder="e.g. What are Jalen Brunson's career stats?" autocomplete="off">
+        <button type="submit" id="chatSendBtn">Send</button>
+    </form>
+</div>
+
+<script src="js/chat.js"></script>
+</body>
+</html>

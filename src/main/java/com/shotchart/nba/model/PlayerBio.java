@@ -6,7 +6,7 @@ public class PlayerBio {
     private String firstName;
     private String lastName;
     private String birthDate;
-    private int heightFeetInches;
+    private String heightFeetInches;
     private int weightPounds;
     private String country;
     private String school;
@@ -21,7 +21,7 @@ public class PlayerBio {
     public PlayerBio() {
     }
 
-    public PlayerBio(int id, String firstName, String lastName, String birthDate, int heightFeetInches, int weightPounds, String country, String school, int draftYear, int draftRound, int draftNumber, String currentTeam, int jerseyNumber, String position, int seasonExp) {
+    public PlayerBio(int id, String firstName, String lastName, String birthDate, String heightFeetInches, int weightPounds, String country, String school, int draftYear, int draftRound, int draftNumber, String currentTeam, int jerseyNumber, String position, int seasonExp) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -71,11 +71,11 @@ public class PlayerBio {
         this.birthDate = birthDate;
     }
 
-    public int getHeightFeetInches() {
+    public String getHeightFeetInches() {
         return heightFeetInches;
     }
 
-    public void setHeightFeetInches(int heightFeetInches) {
+    public void setHeightFeetInches(String heightFeetInches) {
         this.heightFeetInches = heightFeetInches;
     }
 
