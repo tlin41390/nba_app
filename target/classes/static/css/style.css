@@ -618,3 +618,144 @@ header h1 {
 .chat-bubble .chat-table tbody tr:last-child td {
     border-bottom: none;
 }
+
+/* ---------- Career stat line chart (player-bio page) ---------- */
+
+.chart-card {
+    background: #141821;
+    border: 1px solid #333;
+    border-radius: 10px;
+    padding: 14px 16px 10px;
+    margin-bottom: 14px;
+}
+
+.chart-card.hidden {
+    display: none;
+}
+
+.chart-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.chart-title {
+    margin: 0;
+    font-size: 16px;
+    color: #e8e8e8;
+}
+
+.stat-toggle-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.stat-toggle-btn {
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid #333;
+    background: #1a1d24;
+    color: #c8c8c8;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.stat-toggle-btn:hover {
+    border-color: #555;
+    color: #fff;
+}
+
+.stat-toggle-btn.active {
+    background: #c9082a;
+    border-color: #c9082a;
+    color: #fff;
+}
+
+.stat-chart-wrap {
+    position: relative;
+    width: 100%;
+}
+
+.stat-chart-svg {
+    display: block;
+    width: 100%;
+    height: 260px;
+}
+
+.stat-chart-gridline {
+    stroke: #262a33;
+    stroke-width: 1;
+}
+
+.stat-chart-axis {
+    stroke: #383d48;
+    stroke-width: 1;
+}
+
+.stat-chart-tick-label {
+    fill: #9aa0a6;
+    font-size: 10.5px;
+}
+
+.stat-chart-line {
+    fill: none;
+    stroke: #3987e5;
+    stroke-width: 2;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+}
+
+.stat-chart-point-ring {
+    fill: #141821;
+}
+
+.stat-chart-point {
+    fill: #3987e5;
+    transition: transform 0.1s ease, fill 0.1s ease;
+    transform-box: fill-box;
+    transform-origin: center;
+}
+
+.stat-chart-point.active {
+    fill: #6ba8ef;
+    transform: scale(1.4);
+}
+
+.stat-chart-endpoint-label {
+    fill: #e8e8e8;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.stat-chart-crosshair {
+    stroke: #4a4f5b;
+    stroke-width: 1;
+    pointer-events: none;
+}
+
+.stat-chart-crosshair.hidden {
+    display: none;
+}
+
+.stat-chart-hit-area {
+    fill: transparent;
+    cursor: crosshair;
+}
+
+.tooltip .t-value {
+    font-weight: 700;
+    font-size: 14px;
+    color: #111;
+}
+
+.tooltip .t-season {
+    font-size: 11.5px;
+    color: #666;
+    margin-top: 2px;
+}

@@ -29,6 +29,18 @@
     </div>
 
     <div id="statsMsg" class="status hidden"></div>
+
+    <div id="chartCard" class="chart-card hidden">
+        <div class="chart-card-header">
+            <h2 id="chartTitle" class="chart-title">&nbsp;</h2>
+            <div id="statToggleRow" class="stat-toggle-row"></div>
+        </div>
+        <div class="stat-chart-wrap">
+            <svg id="statChart" class="stat-chart-svg" viewBox="0 0 640 260" preserveAspectRatio="none"></svg>
+            <div id="statTooltip" class="tooltip hidden"></div>
+        </div>
+    </div>
+
     <div class="table-wrap">
         <table class="stats-table" id="careerTable">
             <thead>
